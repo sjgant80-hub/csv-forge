@@ -1,0 +1,31 @@
+{
+  "build": "csv-forge",
+  "what": "Bring your own CSV, own a verified model. A generic, client-side tool: it infers a CSV's columns, auto-encodes them, forges the patterns that predict a binary target on held-out rows, and mints the winner as a real downloadable owned model + a signed, re-checkable receipt. Proven here on a real 7,043-row dataset the tool was NOT hand-coded for.",
+  "sealed_before_measurement": true,
+  "claims": [
+    { "id": "P1", "text": "With ZERO hand-coding, the generic tool recovers the real churn driver on held-out rows", "check": "bestFeatureName === 'Contract = Month-to-month' && bestTestBA >= 0.7" },
+    { "id": "P2", "text": "It parsed and auto-encoded the raw file itself: 7,043 rows → 46 features, target auto-picked", "check": "nrows === 7043 && features === 46 && target === 'Churn' && positive === 'Yes'" },
+    { "id": "P3", "text": "Many patterns clear the held-out bar (richer than a hand-built 6-feature model)", "check": "survivors >= 10" },
+    { "id": "P4", "text": "THE PRODUCT: the downloaded owned-model module imports and predicts correctly, its receipt verifies, and a tampered receipt is rejected", "check": "modelPredictsMonthToMonth === 'Yes' && modelPredictsTwoYear === 'No' && modelReceiptVerifies === true && tamperRejected === true" },
+    { "id": "P5", "text": "The model mints tiny and OWNED, and owning beats renting an LLM to score rows", "check": "mintMinted === true && mintBytes > 0 && mintBytes < 40 && econVerdict === 'OWN_WINS'" }
+  ],
+  "expected": {
+    "nrows": 7043,
+    "features": 46,
+    "target": "Churn",
+    "positive": "Yes",
+    "negative": "No",
+    "bestFeatureName": "Contract = Month-to-month",
+    "bestTestBA": 0.726,
+    "survivors": 19,
+    "breedImproved": true,
+    "mintMinted": true,
+    "mintBytes": 21,
+    "econVerdict": "OWN_WINS",
+    "receiptVerifies": true,
+    "tamperRejected": true,
+    "modelPredictsMonthToMonth": "Yes",
+    "modelPredictsTwoYear": "No",
+    "modelReceiptVerifies": true
+  }
+}

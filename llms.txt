@@ -1,0 +1,29 @@
+# csv-forge
+
+> Bring your own CSV, own a verified model. A free, 100% in-browser tool: drop any spreadsheet with a
+> yes/no column, it infers the columns, forges the patterns that predict that column on HELD-OUT rows it
+> never saw, and mints the winner as a tiny downloadable OWNED model plus a signed, re-checkable receipt.
+> Your data never leaves the page — the sovereign alternative to renting an LLM (RAG) to read your data.
+
+## How it works
+- Infers each column (numeric / categorical / id / constant); auto-picks a binary target (you can change it).
+- Numerics pass through (quantile-binned so it stays instant on any size); categoricals become 0/1 indicators; IDs are dropped.
+- Proposes simple patterns on a training split, keeps only those that clear a balanced-accuracy bar on a held-out split (never an LLM judge); breeds compound rules; mints the best as an owned model gated by fallforgemint's certified-beats-the-base rule.
+- You download owned-model.mjs (runs anywhere, predict(row), no per-call cost) and a signed receipt.json (tamper-evident, re-verifiable).
+
+## Proven on real data (sealed in predictions.json, checked live + in CI)
+On the bundled IBM Telco Customer Churn sample (7,043 real customers), with ZERO hand-coding the generic
+tool recovers the real driver — a month-to-month contract predicts churn on held-out rows at balanced
+accuracy 0.726 — builds 46 features, keeps 19 patterns, and the downloaded owned model imports, predicts
+correctly, verifies its receipt, and rejects a tampered one.
+
+## Proof-of-play
+- csv.mjs and receipt.mjs are mutation-witnessed (score 1.0) and fuzzed never-throw.
+- ci-verify.mjs drives the whole product on the frozen, sha-pinned sample on GitHub's runner — writing the
+  downloadable model, importing it back, and running predict() — and checks every sealed claim.
+- Forge/breed/mint kernels vendored + pinned from pattern-forge and fallforgemint (see VENDOR.md).
+
+## Links
+- Live: https://sjgant80-hub.github.io/csv-forge/
+- Source: https://github.com/sjgant80-hub/csv-forge
+- Built on: https://sjgant80-hub.github.io/pattern-forge/

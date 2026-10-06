@@ -1,0 +1,36 @@
+name: proof-of-play
+on:
+  push: { branches: [main, master] }
+  pull_request:
+  workflow_dispatch:
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Data integrity — the bundled sample must be the exact frozen bytes
+        run: echo "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91  samples/telco-churn.csv" | sha256sum -c -
+
+      - name: Unit tests
+        run: node --test
+
+      - name: Mutation gate — csv-forge's own kernels must be CLEAN
+        run: |
+          set -e
+          node tools/witness.mjs mutate csv.mjs --test node --test csv.test.mjs
+          node tools/witness.mjs mutate receipt.mjs --test node --test receipt.test.mjs
+
+      - name: Fuzz gate — the never-throw boundary (own + vendored kernels)
+        run: |
+          set -e
+          for fn in parseCsv inferColumns suggestTarget choosePositive quantizer encode prepare; do node tools/witness.mjs fuzz csv.mjs "$fn"; done
+          for fn in interpretStump buildReceipt verifyReceipt canonical modelModuleSource; do node tools/witness.mjs fuzz receipt.mjs "$fn"; done
+          for fn in splitCases predict balancedAccuracy proposeStumps forge; do node tools/witness.mjs fuzz vendor/pattern-forge/pattern.mjs "$fn"; done
+          for fn in predictCompound baCompound breed; do node tools/witness.mjs fuzz vendor/pattern-forge/breed.mjs "$fn"; done
+          for fn in fingerprint modelBody receiptFor mint verifyMint economics; do node tools/witness.mjs fuzz vendor/pattern-forge/mint.mjs "$fn"; done
+
+      - name: Re-derive — drive the WHOLE product on the real sample and check predictions.json
+        run: node ci-verify.mjs

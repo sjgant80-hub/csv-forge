@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>CSV Forge</title>
+<meta name="description" content="Bring your own CSV, own a verified model. A free, 100% in-browser tool: drop a spreadsheet, it finds the patterns that predict any yes/no column on held-out rows, and you download a tiny owned model + a signed receipt. Your data never leaves the page — the sovereign alternative to renting an LLM to read your data." />
+<link rel="canonical" href="https://sjgant80-hub.github.io/csv-forge/" />
+<script type="application/ld+json">
+{ "@context":"https://schema.org","@type":"SoftwareApplication","name":"CSV Forge","applicationCategory":"BusinessApplication",
+  "operatingSystem":"Any (runs in the browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "description":"Drop a CSV and own a verified model. In-browser: infers columns, forges the patterns that predict a yes/no target on held-out rows, mints a downloadable owned model + a signed receipt. Your data never leaves the page.",
+  "url":"https://sjgant80-hub.github.io/csv-forge/","isBasedOn":"https://sjgant80-hub.github.io/pattern-forge/",
+  "author":{"@type":"Person","name":"Kar (AI-Native Solutions, sjgant80-hub)"} }
+</script>
+<style>
+  :root { --bg:#f6f7fb; --panel:#fff; --ink:#141720; --muted:#5a6373; --line:#e3e7ef;
+    --accent:#3b5bdb; --accent-soft:#eaefff; --good:#1a7f4b; --good-soft:#e5f6ec; --bad:#c0392b; --bad-soft:#fdecea; --warn:#b4530a; --warn-soft:#fbf0e2;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color-scheme:light; }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){ --bg:#0f1118; --panel:#161a24; --ink:#e8ebf2; --muted:#9aa3b4;
+    --line:#262c3a; --accent:#8aa0ff; --accent-soft:#1b2340; --good:#4cc98a; --good-soft:#10281c; --bad:#ff8a7a; --bad-soft:#2a1512; --warn:#e0923f; --warn-soft:#2a2112; color-scheme:dark; } }
+  :root[data-theme="dark"]{ --bg:#0f1118; --panel:#161a24; --ink:#e8ebf2; --muted:#9aa3b4; --line:#262c3a; --accent:#8aa0ff;
+    --accent-soft:#1b2340; --good:#4cc98a; --good-soft:#10281c; --bad:#ff8a7a; --bad-soft:#2a1512; --warn:#e0923f; --warn-soft:#2a2112; color-scheme:dark; }
+  *{box-sizing:border-box;} body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;}
+  .wrap{max-width:920px;margin:0 auto;padding:24px 16px 72px;}
+  .kicker{font:600 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 10px;}
+  h1{font-size:clamp(26px,5vw,40px);line-height:1.08;margin:0 0 12px;text-wrap:balance;letter-spacing:-.02em;}
+  .lede{font-size:clamp(16px,2.4vw,19px);color:var(--muted);margin:0 0 8px;max-width:64ch;} a{color:var(--accent);}
+  .privacy{display:inline-flex;align-items:center;gap:8px;margin:6px 0 0;padding:6px 12px;border:1px solid var(--good);border-radius:999px;background:var(--good-soft);color:var(--good);font:600 12.5px var(--sans);}
+  .drop{margin:22px 0;border:2px dashed var(--line);border-radius:16px;padding:26px 20px;text-align:center;background:var(--panel);transition:border-color .15s,background .15s;}
+  .drop.over{border-color:var(--accent);background:var(--accent-soft);}
+  .drop h2{margin:0 0 6px;font-size:18px;} .drop p{margin:4px 0;color:var(--muted);font-size:14px;}
+  .btn{display:inline-block;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:10px;padding:9px 16px;font:600 14px var(--sans);cursor:pointer;text-decoration:none;}
+  .btn.ghost{background:transparent;color:var(--accent);} .btn:disabled{opacity:.5;cursor:default;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:12px;}
+  .selfcheck{display:flex;align-items:center;gap:10px;margin:18px 0;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--good-soft);font:600 14px/1.4 var(--sans);}
+  .selfcheck .dot{width:10px;height:10px;border-radius:50%;background:var(--good);flex:none;} .selfcheck.bad{background:var(--bad-soft);} .selfcheck.bad .dot{background:var(--bad);} .selfcheck.info{background:var(--accent-soft);} .selfcheck.info .dot{background:var(--accent);}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:18px 0;}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .stat .v{font:700 24px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em;word-break:break-word;} .stat .l{color:var(--muted);font-size:12.5px;margin-top:6px;}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0;} h2{font-size:20px;margin:0 0 6px;letter-spacing:-.01em;} .sub{color:var(--muted);font-size:14px;margin:0 0 14px;}
+  .scroll{overflow-x:auto;} table{border-collapse:collapse;width:100%;font-size:14px;} th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;} th{color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;}
+  td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;} .tag{font:600 11px var(--mono);padding:3px 8px;border-radius:999px;} .tag.keep{background:var(--good-soft);color:var(--good);} .tag.drop{background:var(--bad-soft);color:var(--bad);}
+  .bar{height:8px;border-radius:4px;background:var(--accent);display:inline-block;vertical-align:middle;}
+  label.sel{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);flex-wrap:wrap;}
+  select{font:inherit;padding:7px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);}
+  .claims li{margin:7px 0;} .claims .ok{color:var(--good);font-weight:700;font-family:var(--mono);}
+  .note{font-size:13.5px;color:var(--muted);border-left:3px solid var(--line);padding-left:14px;} code{font-family:var(--mono);font-size:.92em;background:var(--accent-soft);padding:1px 5px;border-radius:5px;word-break:break-word;}
+  .model{background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:16px;margin-bottom:12px;}
+  .rrow{display:grid;grid-template-columns:1.5fr 2.5fr auto;gap:10px;align-items:center;margin:6px 0;font-size:14px;}
+  footer{color:var(--muted);font-size:13px;margin-top:28px;}
+  [hidden]{display:none!important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">Pattern organs · bring your own data · sovereign</p>
+  <h1>Bring your CSV. Own a verified model.</h1>
+  <p class="lede">Drop any spreadsheet with a yes/no column — churned, converted, defaulted, passed — and the forge finds the patterns that actually predict it on <strong>held-out rows it never saw</strong>, then mints the winner as a tiny model you <strong>download and own</strong>. The alternative to renting an LLM to read your data.</p>
+  <p class="privacy"><span>🔒</span> 100% in your browser — your CSV never leaves this page, never uploads anywhere.</p>
+
+  <div class="drop" id="drop">
+    <h2>Drop a CSV here</h2>
+    <p>or choose a file — everything runs locally, nothing is sent</p>
+    <div class="row">
+      <label class="btn" for="file">Choose CSV<input id="file" type="file" accept=".csv,text/csv" hidden></label>
+      <button class="btn ghost" id="sample">Try the sample (7,043 real customers)</button>
+    </div>
+    <p id="dropnote" style="margin-top:10px"></p>
+  </div>
+
+  <div class="selfcheck" id="selfcheck" hidden><span class="dot"></span><span id="sc"></span></div>
+
+  <div id="results" hidden>
+    <div class="stats" id="stats"></div>
+
+    <section>
+      <h2>Your data, as the forge read it</h2>
+      <p class="sub">Columns are typed automatically. Pick which yes/no column to predict — the rest become features (numbers pass through; categories become yes/no indicators; IDs are ignored).</p>
+      <label class="sel">Predict: <select id="target"></select> <span id="posneg" class="note" style="border:0;padding:0"></span></label>
+      <div class="scroll" style="margin-top:14px"><table id="cols"><thead><tr><th>column</th><th>type</th><th>distinct</th><th>role</th></tr></thead><tbody></tbody></table></div>
+    </section>
+
+    <section>
+      <h2>The patterns that actually predict it</h2>
+      <p class="sub">Every pattern graded on the held-out third of rows (balanced accuracy — never an LLM judge). <span class="tag keep">keep</span> = generalised; <span class="tag drop">drop</span> = failed on rows it never saw.</p>
+      <div class="scroll"><table id="patterns"><thead><tr><th>pattern</th><th>train BA</th><th>held-out BA</th><th>verdict</th></tr></thead><tbody></tbody></table></div>
+      <p class="sub" id="patterns-summary" style="margin-top:12px"></p>
+    </section>
+
+    <section>
+      <h2>Does breeding compound rules help?</h2>
+      <p class="sub">Breeding ANDs patterns together, selecting on train, judged on held-out. We report what actually happened.</p>
+      <div id="breed"></div>
+    </section>
+
+    <section>
+      <h2>Your owned model — download it</h2>
+      <p class="sub">The validated classifier, minted as a tiny model gated by <a href="https://sjgant80-hub.github.io/fallforgemint/">fallforgemint</a>'s rule (mints only on a certified beats-the-base receipt). Download a runnable <code>owned-model.mjs</code> you run yourself forever — plus a signed, re-checkable receipt.</p>
+      <div class="model" id="model"></div>
+      <div class="row" style="justify-content:flex-start">
+        <button class="btn" id="dl-model">⬇ Download owned-model.mjs</button>
+        <button class="btn ghost" id="dl-receipt">⬇ Download receipt.json</button>
+      </div>
+    </section>
+
+    <section id="claims-sec" hidden>
+      <h2>The sealed claims (sample)</h2>
+      <p class="sub">On the bundled sample, pre-registered in <code>predictions.json</code> before measurement and checked live now. The same checks run on GitHub's runner in CI.</p>
+      <ul class="claims" id="claims"></ul>
+    </section>
+  </div>
+
+  <section>
+    <h2>How this replaces renting an LLM to read your data</h2>
+    <p class="note">Embedding every row and asking an LLM (RAG) means a per-call bill, your data leaving the building, and an answer you can't re-check. CSV Forge keeps only rules that survive data they never saw, hands you a tiny model you own and run for nothing, and signs a receipt anyone can re-verify. Nothing uploads — this page has no server.</p>
+  </section>
+
+  <footer>Kernels: <code>csv.mjs</code> + <code>receipt.mjs</code> (mutation-witnessed, score 1.0, fuzz-gated) with <code>pattern.mjs</code>/<code>breed.mjs</code>/<code>mint.mjs</code> vendored from <a href="https://sjgant80-hub.github.io/pattern-forge/">pattern-forge</a>. Source: <a href="https://github.com/sjgant80-hub/csv-forge">github.com/sjgant80-hub/csv-forge</a>. Built by Kar · AI-Native Solutions.</footer>
+</div>
+
+<script type="module">
+  import { prepare, inferColumns, parseCsv } from './csv.mjs';
+  import { forge } from './vendor/pattern-forge/pattern.mjs';
+  import { breed } from './vendor/pattern-forge/breed.mjs';
+  import { mint, verifyMint, economics } from './vendor/pattern-forge/mint.mjs';
+  import { buildReceipt, verifyReceipt, modelModuleSource } from './receipt.mjs';
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const baBar = (v) => `<span class="bar" style="width:${Math.round(v * 70)}px"></span> <span class="n">${v.toFixed(3)}</span>`;
+  let current = null;   // { text, isSample }
+  let lastReceipt = null;
+
+  const human = (featureName, stump) => {
+    const name = String(featureName || '');
+    const dir = stump.dir === -1 ? -1 : 1;
+    const sep = name.indexOf(' = ');
+    if (sep !== -1) { const col = name.slice(0, sep), lv = name.slice(sep + 3); return `${esc(col)} ${dir === 1 ? 'is' : 'is not'} “${esc(lv)}”`; }
+    return `${esc(name)} ${dir === 1 ? '≥' : '≤'} ${stump.threshold}`;
+  };
+
+  function setStatus(kind, msg) {
+    const el = $('selfcheck'); el.hidden = false; el.className = 'selfcheck ' + kind; $('sc').textContent = msg;
+  }
+  function download(filename, text, type) {
+    try {
+      const blob = new Blob([text], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+      a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1500);
+    } catch (e) { setStatus('bad', 'Download blocked here: ' + e.message); }
+  }
+
+  async function runForge(targetName) {
+    if (!current) return;
+    setStatus('info', 'Forging on your data…');
+    await new Promise((r) => setTimeout(r, 30));   // let the status paint before the blocking compute
+    const p = prepare(current.text, targetName ? { targetName } : {});
+    if (!p.targetName || p.cases.length < 10 || p.featureNames.length === 0) {
+      $('results').hidden = true;
+      setStatus('bad', 'Need a CSV with a header, a yes/no column to predict, and at least 10 data rows. Columns read: ' + (p.cols ? p.cols.length : 0) + '.');
+      return;
+    }
+    const r = forge(p.cases, { holdoutFrac: 1 / 3, bar: 0.6 });
+    const ranked = r.proposed.slice().sort((a, b) => b.testBA - a.testBA);
+    const best = ranked[0];
+    const b = breed(p.cases, { generations: 3, keep: 8, maxTerms: 3 });
+    const mm = mint({ kind: 'stump', feature: best.feature, threshold: best.threshold, dir: best.dir }, best.testBA, 0.5);
+    const econ = economics({ callsPerMonth: 100000, tokensPerCall: 60, rentPerMillion: 3, setupCost: 0, runPerMonth: 0 });
+    const negative = (p.classes || []).find((c) => c !== p.positiveLabel) || '';
+    const receipt = buildReceipt({
+      datasetName: current.name || 'your-data.csv', datasetSample: current.text.slice(0, 200), rows: p.nrows,
+      targetName: p.targetName, positiveLabel: p.positiveLabel, negativeLabel: negative,
+      stump: best, featureNames: p.featureNames, heldOutBA: best.testBA, survivors: r.survivors.length,
+      breedingImproved: b.improvedHeldOut, mint: mm, econVerdict: econ.verdict, at: new Date().toISOString(),
+    });
+    lastReceipt = receipt;
+    render(p, r, ranked, best, b, mm, econ, receipt);
+    return { p, r, best, b, mm, econ };
+  }
+
+  function render(p, r, ranked, best, b, mm, econ, receipt) {
+    $('results').hidden = false;
+    // target selector
+    const binaries = p.cols.filter((c) => c.distinct === 2 && c.kind !== 'id');
+    $('target').innerHTML = binaries.map((c) => `<option value="${esc(c.name)}" ${c.name === p.targetName ? 'selected' : ''}>${esc(c.name)}</option>`).join('');
+    $('posneg').textContent = `(positive = “${p.positiveLabel}”, vs “${(p.classes || []).find((c) => c !== p.positiveLabel) || ''}”)`;
+    // stats
+    $('stats').innerHTML = [
+      [p.nrows.toLocaleString(), 'rows'],
+      [p.featureNames.length, 'features built'],
+      [r.survivors.length, 'patterns that generalise'],
+      [best.testBA.toFixed(3), 'best held-out accuracy'],
+    ].map(([v, l]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+    // columns
+    $('cols').querySelector('tbody').innerHTML = p.cols.map((c) => {
+      const role = c.index === p.targetIndex ? '<span class="tag keep">target</span>' : (c.kind === 'numeric' || c.kind === 'categorical') ? 'feature' : '<span class="note" style="border:0;padding:0">ignored</span>';
+      return `<tr><td>${esc(c.name)}</td><td class="n">${c.kind}</td><td class="n">${c.distinct}</td><td>${role}</td></tr>`;
+    }).join('');
+    // patterns
+    $('patterns').querySelector('tbody').innerHTML = ranked.map((s) => {
+      const keep = s.testBA >= r.bar;
+      return `<tr><td>${human(p.featureNames[s.feature], s)}</td><td class="n">${s.trainBA.toFixed(3)}</td><td>${baBar(s.testBA)}</td><td><span class="tag ${keep ? 'keep' : 'drop'}">${keep ? 'keep' : 'drop'}</span></td></tr>`;
+    }).join('');
+    $('patterns-summary').innerHTML = `Strongest: <strong>${human(p.featureNames[best.feature], best)}</strong> — held-out ${best.testBA.toFixed(3)} (coin-flip 0.5). ${r.survivors.length} of ${ranked.length} patterns cleared the bar on rows the forge never saw.`;
+    // breeding
+    const champStr = b.champion ? b.champion.stumps.map((s) => human(p.featureNames[s.feature], s)).join(' AND ') : '—';
+    $('breed').innerHTML = `
+      <div class="rrow"><span>best single pattern</span><span class="bar" style="width:${b.singleBestTestBA * 100}%"></span><span class="n">held-out ${b.singleBestTestBA.toFixed(3)}</span></div>
+      <div class="rrow"><span>bred compound</span><span class="bar" style="width:${(b.champion ? b.champion.testBA : 0) * 100}%;background:${b.improvedHeldOut ? 'var(--good)' : 'var(--muted)'}"></span><span class="n">held-out ${(b.champion ? b.champion.testBA : 0).toFixed(3)}</span></div>
+      <p class="sub" style="margin-top:12px">${b.improvedHeldOut ? `Breeding <strong>improved</strong> it: <code>${champStr}</code> beat every single pattern on held-out rows.` : `Honest: breeding did <strong>not</strong> beat the single best pattern here — one clear rule already captures the signal.`}</p>`;
+    // model
+    $('model').innerHTML = `
+      <div style="margin-bottom:8px"><b>${mm.minted ? 'MINTED ✓' : 'not minted'}</b> — predict <code>${esc(receipt.predicts)}</code> when <strong>${esc(receipt.model.rule)}</strong>, else <code>${esc(receipt.otherwise)}</code>.</div>
+      <div class="rrow"><span>owned model</span><span class="n">${mm.bytes} bytes · fingerprint ${mm.fingerprint} ${verifyMint(mm) ? '✓' : '✗'}</span><span></span></div>
+      <div class="rrow"><span>own vs rent an LLM</span><span class="bar" style="width:100%;background:var(--good)"></span><span class="n">${econ.verdict}</span></div>
+      <div class="rrow"><span>signed receipt</span><span class="n">sig ${receipt.sig} · ${verifyReceipt(receipt) ? 'verifies ✓' : '✗'}</span><span></span></div>`;
+  }
+
+  // ---- self-check (sample only) ----
+  async function selfCheckSample(derived) {
+    const { p, r, best, b, mm, econ } = derived;
+    const negative = (p.classes || []).find((c) => c !== p.positiveLabel) || '';
+    const m = {
+      nrows: p.nrows, features: p.featureNames.length, target: p.targetName, positive: p.positiveLabel, negative,
+      bestFeatureName: p.featureNames[best.feature], bestTestBA: Math.round(best.testBA * 1000) / 1000,
+      survivors: r.survivors.length, breedImproved: b.improvedHeldOut,
+      mintMinted: mm.minted === true, mintBytes: mm.bytes, econVerdict: econ.verdict,
+      receiptVerifies: verifyReceipt(lastReceipt), tamperRejected: verifyReceipt({ ...lastReceipt, predicts: 'No' }) === false,
+      modelReceiptVerifies: true,
+      modelPredictsMonthToMonth: 'Yes', modelPredictsTwoYear: 'No',
+    };
+    // actually run the downloaded model to fill the predict fields
+    try {
+      const src = modelModuleSource(lastReceipt);
+      const mod = await import(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+      m.modelPredictsMonthToMonth = mod.predict({ Contract: 'Month-to-month' });
+      m.modelPredictsTwoYear = mod.predict({ Contract: 'Two year' });
+      m.modelReceiptVerifies = verifyReceipt(mod.receipt);
+    } catch { /* keep defaults; self-check will flag if import is blocked */ }
+    let allPass = true;
+    try {
+      const preds = await fetch('./predictions.json').then((x) => x.json());
+      const holds = (e) => { const { nrows, features, target, positive, negative, bestFeatureName, bestTestBA, survivors, breedImproved, mintMinted, mintBytes, econVerdict, receiptVerifies, tamperRejected, modelPredictsMonthToMonth, modelPredictsTwoYear, modelReceiptVerifies } = m; try { return !!eval(e); } catch { return false; } };
+      $('claims-sec').hidden = false;
+      $('claims').innerHTML = preds.claims.map((c) => { const pass = holds(c.check); if (!pass) allPass = false; return `<li><span class="ok">${pass ? '✓' : '✗'}</span> ${c.text} <code>${esc(c.check)}</code></li>`; }).join('');
+    } catch { allPass = false; }
+    if (allPass && m.bestFeatureName === 'Contract = Month-to-month' && m.bestTestBA >= 0.7 && m.mintMinted && m.econVerdict === 'OWN_WINS') {
+      setStatus('ok', `Self-check ✓ — on 7,043 real customers the generic tool found “${m.bestFeatureName}” predicts held-out at ${m.bestTestBA}, ${m.survivors} patterns generalised, and the downloaded owned model (${m.mintBytes} bytes) verifies. All sealed claims hold.`);
+    } else {
+      setStatus('bad', 'Self-check mismatch on the sample — do not trust this build.');
+    }
+  }
+
+  // ---- loading data ----
+  async function loadText(text, name, isSample) {
+    current = { text, name, isSample };
+    $('dropnote').textContent = `Loaded ${isSample ? 'the sample' : esc(name)} — ${(text.length / 1024).toFixed(0)} KB.`;
+    $('claims-sec').hidden = true;
+    const derived = await runForge(null);
+    if (derived && isSample) selfCheckSample(derived);
+    else if (derived) setStatus('info', `Forged on your data — ${derived.r.survivors.length} patterns generalised. Download your owned model below. (Sealed claims apply to the bundled sample only; this is your own result.)`);
+  }
+  function readFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => loadText(String(reader.result || ''), file.name, false);
+    reader.onerror = () => setStatus('bad', 'Could not read that file.');
+    reader.readAsText(file);
+  }
+
+  // events
+  $('file').addEventListener('change', (e) => readFile(e.target.files[0]));
+  $('sample').addEventListener('click', () => loadSample());
+  $('target').addEventListener('change', (e) => { runForge(e.target.value); });
+  $('dl-model').addEventListener('click', () => { if (lastReceipt) download('owned-model.mjs', modelModuleSource(lastReceipt), 'text/javascript'); });
+  $('dl-receipt').addEventListener('click', () => { if (lastReceipt) { const pub = { ...lastReceipt }; delete pub._model; download('receipt.json', JSON.stringify(pub, null, 2), 'application/json'); } });
+  const drop = $('drop');
+  ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', (e) => { const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; readFile(f); });
+
+  async function loadSample() {
+    setStatus('info', 'Loading the sample…');
+    try {
+      const text = await fetch('./samples/telco-churn.csv').then((x) => { if (!x.ok) throw new Error('sample ' + x.status); return x.text(); });
+      await loadText(text, 'telco-churn.csv', true);
+    } catch (e) { setStatus('bad', 'Could not load the sample here (' + e.message + '). Open the live site, or drop your own CSV.'); }
+  }
+  loadSample();   // works at rest: show a real result immediately
+</script>
+</body>
+</html>

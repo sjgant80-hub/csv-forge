@@ -1,0 +1,8 @@
+{
+  "name": "csv-forge",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Bring your own CSV, own a verified model. In-browser: infer columns, forge patterns that predict a binary target on held-out rows, mint a downloadable owned model + signed receipt. Kernel-backed, witnessed, sealed.",
+  "scripts": { "test": "node --test" }
+}

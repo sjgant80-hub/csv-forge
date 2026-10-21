@@ -1,0 +1,19 @@
+csv-forge — NOTICE
+
+csv-forge is built by Kar · AI-Native Solutions (Simon Gant). The forge, its kernels and its page are
+AI-Native Solutions' own work.
+
+Draws on
+--------
+The held-out rule — a pattern can fit the rows it learned from and still be wrong, so the forge keeps it
+only if it holds on rows it never saw — draws on the Guided Entropy Principle (GEP) result that a stable
+system can stabilize a wrong reference:
+
+  Gary W. Floyd, Lumiea Systems Research Division — ThunderStruck Service LLC — "From GEP Stabilization
+  to Dual-Map Ethical Reasoning: A derivation of positive ethical evidence, negative ethical evidence, and
+  non-legal moral reasoning," Derivation v0.2. Open Defensive Prior Art (Creative Commons).
+
+Vendored code and data
+----------------------
+The pattern-forge and FallForge Mint kernels and the IBM Telco Customer Churn sample are credited in
+VENDOR.md.

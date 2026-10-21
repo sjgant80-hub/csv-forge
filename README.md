@@ -43,4 +43,14 @@ node tools/witness.mjs mutate receipt.mjs --test node --test receipt.test.mjs
 node ci-verify.mjs                                            # drive the product on the real sample
 ```
 
+## Credit
+
+The held-out rule draws on the Guided Entropy Principle (GEP) result that **a stable system can stabilize a wrong
+reference**: a pattern can fit the rows it learned from and still be wrong, so CSV Forge keeps it only if it holds on
+rows it never saw.
+
+> Gary W. Floyd, Lumiea Systems Research Division — ThunderStruck Service LLC — "From GEP Stabilization to Dual-Map Ethical Reasoning: A derivation of positive ethical evidence, negative ethical evidence, and non-legal moral reasoning," Derivation v0.2. Open Defensive Prior Art (Creative Commons).
+
+CSV Forge and its kernels are AI-Native Solutions' own work. See [NOTICE](NOTICE).
+
 Built by **Kar · AI-Native Solutions**. Kernels credited to AI-Native Solutions / Simon Gant; sample data to IBM.

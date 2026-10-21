@@ -23,6 +23,14 @@ correctly, verifies its receipt, and rejects a tampered one.
   downloadable model, importing it back, and running predict() — and checks every sealed claim.
 - Forge/breed/mint kernels vendored + pinned from pattern-forge and fallforgemint (see VENDOR.md).
 
+## Credit
+- The held-out rule (a pattern can fit the rows it learned from and still be wrong, so it is kept only if it
+  holds on rows it never saw) draws on the Guided Entropy Principle (GEP) result that a stable system can
+  stabilize a wrong reference: Gary W. Floyd, Lumiea Systems Research Division — ThunderStruck Service LLC —
+  "From GEP Stabilization to Dual-Map Ethical Reasoning: A derivation of positive ethical evidence, negative
+  ethical evidence, and non-legal moral reasoning," Derivation v0.2. Open Defensive Prior Art (Creative Commons).
+- CSV Forge and its kernels are AI-Native Solutions' own work. Vendored kernels and sample data: VENDOR.md.
+
 ## Links
 - Live: https://sjgant80-hub.github.io/csv-forge/
 - Source: https://github.com/sjgant80-hub/csv-forge
